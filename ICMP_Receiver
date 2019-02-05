@@ -1,0 +1,133 @@
+`timescale 1ns / 1ps
+
+
+module ICMP_receiver(inputmessage, reset, clock, icmp_type,icmp_code, checksum, unused, outputmessage1, outputmessage2, outputmessage3);
+input [31:0] inputmessage;
+input clock;
+input reset;
+output [7:0] icmp_type;
+output [7:0] icmp_code;
+output [15:0] checksum;
+output [31:0] unused;
+output [31:0] outputmessage1;
+output [31:0] outputmessage2;
+output [31:0] outputmessage3;
+
+
+reg [31:0] outputmessage1;
+reg [31:0] outputmessage2;
+reg [31:0] outputmessage3;
+reg [7:0] icmp_type;
+reg [7:0] icmp_code;
+reg [15:0] checksum;
+reg [31:0] unused;
+
+reg [2:0] ps;
+reg [2:0] ns;
+reg [2:0] s0=0;
+reg [2:0] s1=1;
+reg [2:0] s2=2;
+reg [2:0] s3=3;
+reg [2:0] s4=4;
+reg [2:0] s5=5;
+reg [2:0] s6=6;
+reg [2:0] s7=7;
+
+reg [31:0] m0;
+reg [31:0] m1;
+reg [31:0] m2;
+reg [31:0] m3;
+reg [31:0] m4;
+
+
+always @ (posedge clock or posedge reset)
+begin
+if(reset)
+ps=s0;
+else
+begin
+ps=ns;
+end
+end
+
+always @ (posedge clock or posedge reset)
+begin
+if(reset)
+begin
+ns=s0;
+end
+else
+begin
+case(ps)
+s0 : ns<=s1;
+s1 : ns<=s2;
+s2 : ns<=s3;
+s3 : ns<=s4;
+s4 : ns<=s5;
+s5 : ns<=s6;
+s6 : ns<=s7;
+s7 : ns<=s0;
+default : ns<=s0;
+endcase
+end
+end
+
+
+always @ (posedge clock or posedge reset)
+begin
+if(reset)
+begin
+m0<=0;
+m1<=0;
+m2<=0;
+m3<=0;
+m4<=0;
+end
+else
+begin
+case (ps)
+s0 : m0<=inputmessage;
+s1 : m1<=inputmessage;
+s2 : m2<=inputmessage;
+s3 : m3<=inputmessage;
+s4 : m4<=inputmessage;
+default : begin
+	  end
+endcase
+end
+end
+
+
+
+always @ (posedge clock or posedge reset)
+begin
+if(reset)
+begin
+icmp_type<=0;
+icmp_code<=0;
+checksum<=0;
+unused<=0;
+outputmessage1<=0;
+outputmessage2<=0;
+outputmessage3<=0;
+end
+else
+begin
+case (ps)
+s0 : begin
+     end
+s1 : begin
+     icmp_type<=m0[31:24];
+     icmp_code<=m0[23:16];
+     checksum<=m0[15:0];
+     end
+s2 : unused<=m1;
+s3 : outputmessage1<=m2;
+s4 : outputmessage2<=m3;
+s5 : outputmessage3<=m4;
+default : begin
+	      end
+endcase
+end
+end
+endmodule
