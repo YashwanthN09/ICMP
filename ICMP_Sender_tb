@@ -1,0 +1,47 @@
+`timescale 1ns / 1ps
+
+
+
+module ICMPv_7tb();
+reg hardreset;
+reg [31:0] inputdata;
+reg [7:0] icmp_type;
+reg [7:0] icmp_code;
+reg [31:0] unused;
+reg clock;
+wire [15:0] checksum;
+wire [31:0] outputmessage;
+
+ICMPv_7 u0 (hardreset,inputdata,icmp_type,icmp_code,unused,clock,checksum,outputmessage);
+
+initial
+begin
+
+hardreset = 1;
+clock =0;
+
+#10
+hardreset=0;
+inputdata=32'h1414;
+unused=32'b0;
+icmp_type=8'b00000001;
+icmp_code=8'b00000010;
+#15
+inputdata=32'h2021;
+#10
+inputdata=32'h2550;
+#10
+inputdata=32'b0;
+end
+
+always
+begin
+#5 clock = ~clock;
+end
+always
+begin
+#150 $finish;
+end
+
+endmodule
+
